@@ -36,6 +36,7 @@ public class DynamicVm extends Vm {
 		setCoefficients();
 		previousTime = CloudSim.clock();
 		this.taskSlots = taskSlots;
+		this.degrading = false;
 		if (Parameters.outputVmPerformanceLogs) {
 			try {
 				File file = new File(performanceLogFileName);
@@ -157,4 +158,24 @@ public class DynamicVm extends Vm {
 	public int getTaskSlots() {
 		return taskSlots;
 	}
+
+	public double getCpu() {
+		return cpu;
+	}
+
+	public void setCpu(double cpu) {
+		this.cpu = cpu;
+	}
+
+	private double cpu;
+
+	public boolean getDegrading() {
+		return degrading;
+	}
+
+	public void setDegrading(boolean degrading) {
+		this.degrading = degrading;
+	}
+
+	private boolean degrading;
 }

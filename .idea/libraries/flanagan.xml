@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="flanagan">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/flanagan.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/lib/flanagan.jar!/" />
+    </SOURCES>
+  </library>
+</component>

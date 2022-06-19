@@ -62,6 +62,19 @@ public class CloudSim {
 	/** The termination time. */
 	private static double terminateAt = -1;
 
+	public static HashMap<Integer, List<Double>> getEntry() {
+		return entry;
+	}
+
+	private static HashMap<Integer,List<Double>> entry = new HashMap<>();
+
+	public static void addEntry(List<Double> l) {
+		List<Double> ld = new ArrayList<Double>();
+		ld.add(l.get(0));
+		ld.add(l.get(1));
+		entry.put(CloudSim.entry.size() + 1, ld);
+	}
+
 	/**
 	 * Initialises all the common attributes.
 	 * 

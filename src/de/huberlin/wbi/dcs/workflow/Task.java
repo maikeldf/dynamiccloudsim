@@ -10,16 +10,6 @@ public class Task extends HeterogeneousCloudlet implements Comparable<Task> {
 
 	private final String params;
 
-	public double getCpu() {
-		return cpu;
-	}
-
-	public void setCpu(double cpu) {
-		this.cpu = cpu;
-	}
-
-	private double cpu;
-
 	private int nDataDependencies;
 
 	private Workflow workflow;
@@ -44,7 +34,6 @@ public class Task extends HeterogeneousCloudlet implements Comparable<Task> {
 		this.depth = 0;
 		destinedToFail = false;
 		speculativeCopy = false;
-		this.cpu = 0;
 	}
 
 	public Task(Task task) {

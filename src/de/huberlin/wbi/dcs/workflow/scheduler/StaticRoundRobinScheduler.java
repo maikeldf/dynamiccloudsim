@@ -61,7 +61,7 @@ public class StaticRoundRobinScheduler extends AbstractWorkflowScheduler {
 			Vm vm = vmIt.next();
 			schedule.put(task, vm);
 			Log.printLine(CloudSim.clock() + ": " + getName() + ": Assigning Task # " + task.getCloudletId() + " \"" + task.getName() + " " + task.getParams()
-			    + " \"" + " to VM # " + vm.getId());
+			    + " \"" + " to VM #" + vm.getId());
 		}
 	}
 

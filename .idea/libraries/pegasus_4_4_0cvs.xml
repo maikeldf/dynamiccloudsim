@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="pegasus-4.4.0cvs">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/pegasus-4.4.0cvs.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

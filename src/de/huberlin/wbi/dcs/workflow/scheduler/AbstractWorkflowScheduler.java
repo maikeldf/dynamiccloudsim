@@ -27,6 +27,7 @@ import de.huberlin.wbi.dcs.examples.Parameters;
 import de.huberlin.wbi.dcs.workflow.DataDependency;
 import de.huberlin.wbi.dcs.workflow.Task;
 import de.huberlin.wbi.dcs.workflow.Workflow;
+import org.cloudbus.cloudsim.lists.VmList;
 
 public abstract class AbstractWorkflowScheduler extends DatacenterBroker implements WorkflowScheduler {
 
@@ -78,9 +79,11 @@ public abstract class AbstractWorkflowScheduler extends DatacenterBroker impleme
 		for (Vm vm_ : getVmsCreatedList()) {
 			totalRequestedMips += vm_.getMips();
 		}
-		double cpu = vm.getMips() / totalRequestedMips * 100;
-		String message = "CPU: " + cpu;
+		DynamicVm dVm = (DynamicVm) vm;
+		dVm.setCpu(dVm.getMips() / totalRequestedMips * 100);
+		String message = "CPU: " + dVm.getCpu();
 
+		// Sending message to RL agent
 		try {
 			this.send(message);
 		}
@@ -92,23 +95,63 @@ public abstract class AbstractWorkflowScheduler extends DatacenterBroker impleme
 		//Log.printLine("totalRequestedMips: "+ totalRequestedMips / getVmsCreatedList().size());
 
 		Log.formatLine(CloudSim.clock() + ": " + getName() +
-				": Mips: "+vm.getMips()+
-				" RAM: "+vm.getRam()+
+				": Mips: " + dVm.getMips()+
+				" RAM: " + dVm.getRam()+
 				" CPU: %.2f%%"+
-				" VM # " + vm.getId() +
+				" VM #" + dVm.getId() +
 				" starts executing Task # " + task.getCloudletId() + " \"" + task.getName()
-		    + " " + task.getParams() + " \"",cpu);
+		    + " " + task.getParams() + " \"",dVm.getCpu());
 
-		task.setVmId(vm.getId());
+		task.setVmId(dVm.getId());
+		//There is a terminatingDegradedVms (Datacenter)
+//		if (dVm.getCpu() > 100){
+//			DynamicHost host = (DynamicHost) dVm.getHost();
+//			host.vmDestroy(dVm);
+//			sendNow(getVmsToDatacentersMap().get(dVm.getId()), CloudSimTags.VM_DESTROY, dVm);
+//			Log.formatLine(CloudSim.clock() + ": " + getName() +
+//				": Destroying VM #%d "+
+//				" CPU: %.2f%%" +
+//				" RAM: %.2f" +
+//				" Task #%d "  + " \"%d" + " \"" +
+//				" HOST #%d",
+//					dVm.getId(),
+//					dVm.getCpu(),
+//					host.getUtilizationOfRam(),
+//					task.getCloudletId(),
+//					task.getName(),
+//					host.getId());
+//
+//		}
+//		if (task.getCpu() < SimulationParameters.failureThreshold) {
+//			task.setScheduledToFail(true);
+//			task.setCloudletLength((long) (task.getCloudletLength() * Parameters.runtimeFactorInCaseOfFailure));
+//
+//			DynamicHost host = (DynamicHost) vm.getHost();
+//			host.vmDestroy(vm);
+//			sendNow(getVmsToDatacentersMap().get(vm.getId()), CloudSimTags.VM_DESTROY, vm);
+//			Log.formatLine(CloudSim.clock() + ": " + getName() +
+//					": Destroying VM #" + vm.getId() +
+//					" CPU: %.2f%%" +
+//					" RAM: " + host.getUtilizationOfRam() +
+//					" Task # " + task.getCloudletId() + " \"" + task.getName() + " \"" +
+//					" HOST #" + host.getId(), task.getCpu());
+//
+//			Log.printLine(CloudSim.clock() + ": " + getName() + ": Recreating VM #" + vm.getId());
+//			sendNow(getVmsToDatacentersMap().get(vm.getId()), CloudSimTags.VM_CREATE, vm);
+//
+//			//getVmsCreatedList().remove(VmList.getById(getVmList(), vm.getId()));
+//  	} else {
 		//if (numGen.nextDouble() < Parameters.likelihoodOfFailure) {
-		if (cpu < SimulationParameters.failureThreshold) {
-			task.setCpu(cpu);
-			task.setScheduledToFail(true);
-			task.setCloudletLength((long) (task.getCloudletLength() * Parameters.runtimeFactorInCaseOfFailure));
+		if (dVm.getId() == 1) {
+			if (numGen.nextDouble() < Parameters.likelihoodOfFailure) {
+				dVm.setDegrading(true);
+				task.setScheduledToFail(true);
+				task.setCloudletLength((long) (task.getCloudletLength() * Parameters.runtimeFactorInCaseOfFailure));
+			}
 		} else {
 			task.setScheduledToFail(false);
 		}
-		sendNow(getVmsToDatacentersMap().get(vm.getId()), CloudSimTags.CLOUDLET_SUBMIT, task);
+		sendNow(getVmsToDatacentersMap().get(dVm.getId()), CloudSimTags.CLOUDLET_SUBMIT, task);
 	}
 
 	/**
@@ -189,7 +232,7 @@ public abstract class AbstractWorkflowScheduler extends DatacenterBroker impleme
 		Host host = vm.getHost();
 
 		if (task.getCloudletStatus() == Cloudlet.SUCCESS) {
-			Log.printLine(CloudSim.clock() + ": " + getName() + ": VM # " + task.getVmId() + " completed Task # " + task.getCloudletId() + " \"" + task.getName()
+			Log.printLine(CloudSim.clock() + ": " + getName() + ": VM #" + task.getVmId() + " completed Task # " + task.getCloudletId() + " \"" + task.getName()
 			    + " " + task.getParams() + " \"");
 
 			// free task slots occupied by finished / cancelled tasks
@@ -212,7 +255,7 @@ public abstract class AbstractWorkflowScheduler extends DatacenterBroker impleme
 
 		} else {
 
-			Log.printLine(CloudSim.clock() + ": " + getName() + ": VM # " + task.getVmId() + " encountered an error with Task # " + task.getCloudletId() + " \""
+			Log.printLine(CloudSim.clock() + ": " + getName() + ": VM #" + task.getVmId() + " encountered an error with Task # " + task.getCloudletId() + " \""
 			    + task.getName() + " " + task.getParams() + " \"");
 			runningTasks.remove(task.getCloudletId());
 

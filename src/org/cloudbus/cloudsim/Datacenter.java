@@ -15,22 +15,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import de.huberlin.wbi.dcs.DynamicHost;
+import de.huberlin.wbi.dcs.DynamicVm;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.CloudSimTags;
 import org.cloudbus.cloudsim.core.SimEntity;
 import org.cloudbus.cloudsim.core.SimEvent;
 
-/**
- * Datacenter class is a CloudResource whose hostList are virtualized. It deals with processing of
- * VM queries (i.e., handling of VMs) instead of processing Cloudlet-related queries. So, even
- * though an AllocPolicy will be instantiated (in the init() method of the superclass, it will not
- * be used, as processing of cloudlets are handled by the CloudletScheduler and processing of
- * VirtualMachines are handled by the VmAllocationPolicy.
- * 
- * @author Rodrigo N. Calheiros
- * @author Anton Beloglazov
- * @since CloudSim Toolkit 1.0
- */
 public class Datacenter extends SimEntity {
 
 	/** The characteristics. */
@@ -907,9 +898,36 @@ public class Datacenter extends SimEntity {
 			double smallerTime = Double.MAX_VALUE;
 			// for each host...
 			for (int i = 0; i < list.size(); i++) {
-				Host host = list.get(i);
+				DynamicHost host = (DynamicHost) list.get(i);
 				// inform VMs to update processing
 				double time = host.updateVmsProcessing(CloudSim.clock());
+
+				if (host.getEntry().size() > 0){
+					CloudSim.addEntry(host.getEntry());
+					host.getEntry().clear();
+				}
+
+				// terminating degraded Vms
+				terminatingDegradedVms(host);
+
+//				for (Vm vm : getVmList()) {
+//					DynamicVm dVm = (DynamicVm) vm;
+//					if (dVm.getDegrading() && dVm.getCpu() >= 100){
+//						Log.printLine("Degraded VM cpu: " + dVm.getCpu());
+//						DynamicHost host = (DynamicHost) vm.getHost();
+//						host.vmDestroy(vm);
+//						sendNow(getVmsToDatacentersMap().get(vm.getId()), CloudSimTags.VM_DESTROY, vm);
+//						Log.formatLine(CloudSim.clock() + ": " + getName() +
+//								": Destroying VM #" + vm.getId() +
+//								" CPU: %.2f%%" +
+//								" RAM: " + host.getUtilizationOfRam() +
+//								" Task # " + task.getCloudletId() + " \"" + task.getName() + " \"" +
+//								" HOST #" + host.getId(), task.getCpu());
+//
+//						Log.printLine(CloudSim.clock() + ": " + getName() + ": Recreating VM #" + vm.getId());
+//						sendNow(getVmsToDatacentersMap().get(vm.getId()), CloudSimTags.VM_CREATE, vm);
+//					}
+//				}
 				// what time do we expect that the next cloudlet will finish?
 				if (time < smallerTime) {
 					smallerTime = time;
@@ -923,6 +941,24 @@ public class Datacenter extends SimEntity {
 				schedule(getId(), (smallerTime - CloudSim.clock()), CloudSimTags.VM_DATACENTER_EVENT);
 			}
 			setLastProcessTime(CloudSim.clock());
+		}
+	}
+
+	private void terminatingDegradedVms(Host host) {
+		List<DynamicVm> dVmList = new ArrayList<>();
+		for (Vm vm : getVmList()) {
+			DynamicVm dVm = (DynamicVm) vm;
+			if (dVm.getDegrading() && dVm.getCpu() >= 95) {
+				Log.formatLine(CloudSim.clock() + ": " + getName() +
+						": Terminating VM #" + dVm.getId() +
+						" CPU: %.2f%%" +
+						" HOST #" + host.getId(), dVm.getCpu());
+				host.vmDestroy(dVm);
+				dVmList.add(dVm);
+			}
+		}
+		for (DynamicVm dVm_ : dVmList) {
+			getVmList().remove(dVm_);
 		}
 	}
 
@@ -1213,7 +1249,7 @@ public class Datacenter extends SimEntity {
 
 	/**
 	 * Gets the vm list.
-	 * 
+	 *
 	 * @return the vm list
 	 */
 	@SuppressWarnings("unchecked")
@@ -1247,5 +1283,4 @@ public class Datacenter extends SimEntity {
 	protected void setSchedulingInterval(double schedulingInterval) {
 		this.schedulingInterval = schedulingInterval;
 	}
-
 }

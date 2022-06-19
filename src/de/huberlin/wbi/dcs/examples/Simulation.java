@@ -1,16 +1,11 @@
 package de.huberlin.wbi.dcs.examples;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
 
-import org.cloudbus.cloudsim.Datacenter;
-import org.cloudbus.cloudsim.DatacenterCharacteristics;
-import org.cloudbus.cloudsim.Log;
-import org.cloudbus.cloudsim.Storage;
-import org.cloudbus.cloudsim.Vm;
+import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.distributions.ContinuousDistribution;
 
@@ -40,19 +35,18 @@ public class Simulation {
 		SimulationParameters.parseParameters(args);
 		SimulationParameters.experiment = SimulationParameters.Experiment.HETEROGENEOUS_TEST_WORKFLOW;
 		SimulationParameters.scheduler = SimulationParameters.Scheduler.ERA;
-		SimulationParameters.cpuHeterogeneityDistribution = SimulationParameters.Distribution.EXPONENTIAL;
-		SimulationParameters.ioHeterogeneityDistribution = SimulationParameters.Distribution.EXPONENTIAL;
-		SimulationParameters.bwHeterogeneityDistribution = SimulationParameters.Distribution.EXPONENTIAL;
-		SimulationParameters.cpuDynamicsDistribution = SimulationParameters.Distribution.EXPONENTIAL;
-		SimulationParameters.ioDynamicsDistribution = SimulationParameters.Distribution.EXPONENTIAL;
-		SimulationParameters.bwDynamicsDistribution = SimulationParameters.Distribution.EXPONENTIAL;
-		SimulationParameters.cpuNoiseDistribution = SimulationParameters.Distribution.EXPONENTIAL;
-		SimulationParameters.ioNoiseDistribution = SimulationParameters.Distribution.EXPONENTIAL;
-		SimulationParameters.bwNoiseDistribution = SimulationParameters.Distribution.EXPONENTIAL;
+//		SimulationParameters.cpuHeterogeneityDistribution = SimulationParameters.Distribution.EXPONENTIAL;
+//		SimulationParameters.ioHeterogeneityDistribution = SimulationParameters.Distribution.EXPONENTIAL;
+//		SimulationParameters.bwHeterogeneityDistribution = SimulationParameters.Distribution.EXPONENTIAL;
+//		SimulationParameters.cpuDynamicsDistribution = SimulationParameters.Distribution.EXPONENTIAL;
+//		SimulationParameters.ioDynamicsDistribution = SimulationParameters.Distribution.EXPONENTIAL;
+//		SimulationParameters.bwDynamicsDistribution = SimulationParameters.Distribution.EXPONENTIAL;
+//		SimulationParameters.cpuNoiseDistribution = SimulationParameters.Distribution.EXPONENTIAL;
+//		SimulationParameters.ioNoiseDistribution = SimulationParameters.Distribution.EXPONENTIAL;
+//		SimulationParameters.bwNoiseDistribution = SimulationParameters.Distribution.EXPONENTIAL;
 		SimulationParameters.outputDatacenterEvents = true;
-		SimulationParameters.numberOfRuns = 10; //# of vm
+		SimulationParameters.numberOfRuns = 100;
 		SimulationParameters.ram =  (int) (0.5 * 1024);
-		Parameters.likelihoodOfFailure = 0.005;
 		//Parameters.numberOfPes = 3;
 		//Parameters.runtimeFactorInCaseOfFailure = 50d;
 		try {
@@ -79,6 +73,8 @@ public class Simulation {
 				totalRuntime += scheduler.getRuntime();
 				System.out.println(scheduler.getRuntime() / 60);
 			}
+
+			writeEntry(CloudSim.getEntry());
 			Log.setDisabled(false);
 			Log.printLine("Average runtime in minutes: " + totalRuntime / SimulationParameters.numberOfRuns / 60);
 			Log.printLine("Total Workload: " + HeterogeneousCloudlet.getTotalMi() + "mi " + HeterogeneousCloudlet.getTotalIo() + "io "
@@ -92,6 +88,25 @@ public class Simulation {
 			Log.printLine("The simulation has been terminated due to an unexpected error");
 		}
 
+	}
+
+	private static void writeEntry(HashMap<Integer, List<Double>> entry) throws IOException {
+		final String fileName = "out.csv";
+		BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+		writer.write(",High,Low");
+		writer.newLine();
+		for (Map.Entry<Integer, List<Double>> entry_ :
+				entry.entrySet()) {
+
+			// put key and value separated by a colon
+			writer.write(entry_.getKey() + ","
+					+ entry_.getValue().get(0) + "," + entry_.getValue().get(1));
+
+			writer.newLine();
+		}
+
+		writer.flush();
+		writer.close();
 	}
 
 	public static AbstractWorkflowScheduler createScheduler(int i) {
@@ -321,5 +336,4 @@ public class Simulation {
 
 		return list;
 	}
-
 }

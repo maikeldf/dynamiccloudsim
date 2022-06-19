@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
+import de.huberlin.wbi.dcs.DynamicVm;
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Log;
@@ -35,7 +36,7 @@ public abstract class AbstractReplicationScheduler extends AbstractWorkflowSched
 		double tm = vm.getMips();
 		Log.printLine("getMips: "+tm);
 		Log.printLine("getTotalUtilizationOfCpu: "+vm.getTotalUtilizationOfCpu(vm.getCloudletScheduler().getPreviousTime()));
-		Log.printLine(CloudSim.clock() + ": " + getName() + ": VM # " + vm.getId() + " starts executing speculative copy of Task # " + task.getCloudletId() + " \""
+		Log.printLine(CloudSim.clock() + ": " + getName() + ": VM #" + vm.getId() + " starts executing speculative copy of Task # " + task.getCloudletId() + " \""
 		    + task.getName() + " " + task.getParams() + " \"");
 		task.setVmId(vm.getId());
 		if (numGen.nextDouble() < Parameters.likelihoodOfFailure) {
@@ -88,16 +89,16 @@ public abstract class AbstractReplicationScheduler extends AbstractWorkflowSched
 			}
 
 			if (task.isSpeculativeCopy()) {
-				Log.printLine(CloudSim.clock() + ": " + getName() + ": VM # " + speculativeTask.getVmId() + " completed speculative copy of Task # "
+				Log.printLine(CloudSim.clock() + ": " + getName() + ": VM #" + speculativeTask.getVmId() + " completed speculative copy of Task # "
 				    + speculativeTask.getCloudletId() + " \"" + speculativeTask.getName() + " " + speculativeTask.getParams() + " \"");
-				Log.printLine(CloudSim.clock() + ": " + getName() + ": VM # " + originalTask.getVmId() + " cancelled Task # " + originalTask.getCloudletId() + " \""
+				Log.printLine(CloudSim.clock() + ": " + getName() + ": VM #" + originalTask.getVmId() + " cancelled Task # " + originalTask.getCloudletId() + " \""
 				    + originalTask.getName() + " " + originalTask.getParams() + " \"");
 				availableVms.get(originalTask.getVmId()).getCloudletScheduler().cloudletCancel(originalTask.getCloudletId());
 			} else {
-				Log.printLine(CloudSim.clock() + ": " + getName() + ": VM # " + originalTask.getVmId() + " completed Task # " + originalTask.getCloudletId() + " \""
+				Log.printLine(CloudSim.clock() + ": " + getName() + ": VM #" + originalTask.getVmId() + " completed Task # " + originalTask.getCloudletId() + " \""
 				    + originalTask.getName() + " " + originalTask.getParams() + " \"");
 				if (speculativeTask != null) {
-					Log.printLine(CloudSim.clock() + ": " + getName() + ": VM # " + speculativeTask.getVmId() + " cancelled speculative copy of Task # "
+					Log.printLine(CloudSim.clock() + ": " + getName() + ": VM #" + speculativeTask.getVmId() + " cancelled speculative copy of Task # "
 					    + speculativeTask.getCloudletId() + " \"" + speculativeTask.getName() + " " + speculativeTask.getParams() + " \"");
 					availableVms.get(speculativeTask.getVmId()).getCloudletScheduler().cloudletCancel(speculativeTask.getCloudletId());
 				}
@@ -133,12 +134,13 @@ public abstract class AbstractReplicationScheduler extends AbstractWorkflowSched
 			// new original
 		} else {
 			Task speculativeTask = speculativeTasks.remove(task.getCloudletId());
+			DynamicVm dVm = (DynamicVm) vm;
 			if (task.isSpeculativeCopy()) {
-				Log.formatLine(CloudSim.clock() + ": " + getName() + ": VM # " + task.getVmId() +" CPU: %.2f%%"+ " encountered an error with speculative copy of Task # "
-				    + task.getCloudletId() + " \"" + task.getName() + " " + task.getParams() + " \"", task.getCpu());
+				Log.formatLine(CloudSim.clock() + ": " + getName() + ": VM #" + task.getVmId() +" CPU: %.2f%%"+ " encountered an error with speculative copy of Task # "
+				    + task.getCloudletId() + " \"" + task.getName() + " " + task.getParams() + " \"", dVm.getCpu());
 			} else {
-				Log.formatLine(CloudSim.clock() + ": " + getName() + ": VM # " + task.getVmId() +" CPU: %.2f%%"+ " encountered an error with Task # " + task.getCloudletId() + " \""
-				    + task.getName() + " " + task.getParams() + " \"", task.getCpu());
+				Log.formatLine(CloudSim.clock() + ": " + getName() + ": VM #" + task.getVmId() +" CPU: %.2f%%"+ " encountered an error with Task # " + task.getCloudletId() + " \""
+				    + task.getName() + " " + task.getParams() + " \"", dVm.getCpu());
 				tasks.remove(task.getCloudletId());
 				if (speculativeTask != null) {
 					speculativeTask.setSpeculativeCopy(false);

@@ -161,7 +161,7 @@ public class HEFTScheduler extends StaticRoundRobinScheduler {
 				// assign task to vm
 				schedule.put(task, bestVm);
 				Log.printLine(CloudSim.clock() + ": " + getName() + ": Assigning Task # " + task.getCloudletId() + " \"" + task.getName() + " " + task.getParams()
-				    + " \"" + " to VM # " + bestVm.getId());
+				    + " \"" + " to VM #" + bestVm.getId());
 
 				// update readytime of all successor tasks
 				for (DataDependency outgoingEdge : task.getWorkflow().getGraph().getOutEdges(task)) {
