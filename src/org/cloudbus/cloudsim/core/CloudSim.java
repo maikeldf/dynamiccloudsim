@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.math3.util.Pair;
 import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.core.predicates.Predicate;
 import org.cloudbus.cloudsim.core.predicates.PredicateAny;
@@ -62,17 +63,17 @@ public class CloudSim {
 	/** The termination time. */
 	private static double terminateAt = -1;
 
-	public static HashMap<Integer, List<Double>> getEntry() {
+	public static HashMap<Integer, Pair<Integer,List<Double>>> getEntry() {
 		return entry;
 	}
 
-	private static HashMap<Integer, List<Double>> entry = new HashMap<>();
+	private static final HashMap<Integer, Pair<Integer, List<Double>>> entry = new HashMap<>();
 
-	public static void addEntry(List<Double> l) {
-		List<Double> ld = new ArrayList<Double>();
+	public static void addEntry(Integer vmId, List<Double> l) {
+		List<Double> ld = new ArrayList<>();
 		ld.add(l.get(0));
 		ld.add(l.get(1));
-		entry.put(CloudSim.entry.size() + 1, ld);
+		entry.put(CloudSim.entry.size() + 1, new Pair<>(vmId,ld));
 	}
 
 	/**

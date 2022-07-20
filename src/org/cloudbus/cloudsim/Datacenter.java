@@ -903,7 +903,7 @@ public class Datacenter extends SimEntity {
 				double time = host.updateVmsProcessing(CloudSim.clock());
 
 				if (host.getEntry().size() > 0){
-					CloudSim.addEntry(host.getEntry());
+					CloudSim.addEntry(host.getVmList().get(0).getId(), host.getEntry());
 					host.getEntry().clear();
 				}
 
