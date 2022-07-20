@@ -113,7 +113,7 @@ public class DynamicHost extends Host {
 	@Override
 	public double updateVmsProcessing(double currentTime) {
 		double smallerTime = super.updateVmsProcessing(currentTime);
-		listCpu.addAll(fillEntry(1));
+		listCpu.addAll(fillEntry(1)); // performance degradation Vm Id 1 = 10%
 		//listCpu.addAll(fillEntry(2));
 
 		if (listCpu.size() == 4) {
@@ -139,13 +139,11 @@ public class DynamicHost extends Host {
 		DynamicVm dVm = (DynamicVm)(VmList.getById(getVmList(), id));
 		List<Double> l = new ArrayList<>();
 		if (dVm != null) {
-			//if (dVm.getDegrading()) {
-				if (dVm.getCpu() < 100) {
-					Log.formatLine("VM #%d CPU %.2f", dVm.getId(), dVm.getCpu());
-					dVm.setCpu(dVm.getCpu() / 0.9);
-					l.add(dVm.getCpu());
-				}
-			//}
+			if (dVm.getCpu() < 100) {
+				Log.formatLine("VM: #%d CPU: %.2f Performance degrading: %b", dVm.getId(), dVm.getCpu(), dVm.getDegrading());
+				dVm.setCpu(dVm.getCpu() / 0.9); // performance degradation of 10% over time
+				l.add(dVm.getCpu());
+			}
 		}
 
 		return l;

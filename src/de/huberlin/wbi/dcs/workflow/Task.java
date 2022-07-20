@@ -11,7 +11,6 @@ public class Task extends HeterogeneousCloudlet implements Comparable<Task> {
 	private final String params;
 
 	private int nDataDependencies;
-
 	private Workflow workflow;
 
 	private int depth;

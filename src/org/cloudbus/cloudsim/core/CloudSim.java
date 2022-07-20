@@ -66,7 +66,7 @@ public class CloudSim {
 		return entry;
 	}
 
-	private static HashMap<Integer,List<Double>> entry = new HashMap<>();
+	private static HashMap<Integer, List<Double>> entry = new HashMap<>();
 
 	public static void addEntry(List<Double> l) {
 		List<Double> ld = new ArrayList<Double>();
