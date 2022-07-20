@@ -114,7 +114,7 @@ public class DynamicHost extends Host {
 	public double updateVmsProcessing(double currentTime) {
 		double smallerTime = super.updateVmsProcessing(currentTime);
 		listCpu.addAll(fillEntry(1)); // performance degradation Vm Id 1 = 10%
-		//listCpu.addAll(fillEntry(2));
+		listCpu.addAll(fillEntry(0));
 
 		if (listCpu.size() == 4) {
 			Collections.sort(listCpu);
@@ -141,7 +141,9 @@ public class DynamicHost extends Host {
 		if (dVm != null) {
 			if (dVm.getCpu() < 100) {
 				Log.formatLine("VM: #%d CPU: %.2f Performance degrading: %b", dVm.getId(), dVm.getCpu(), dVm.getDegrading());
-				dVm.setCpu(dVm.getCpu() / 0.9); // performance degradation of 10% over time
+				if (dVm.getDegrading()) {
+					dVm.setCpu(dVm.getCpu() / 0.9); // performance degradation of 10% over time
+				}
 				l.add(dVm.getCpu());
 			}
 		}

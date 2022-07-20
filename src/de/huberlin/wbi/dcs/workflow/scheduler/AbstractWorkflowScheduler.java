@@ -142,7 +142,7 @@ public abstract class AbstractWorkflowScheduler extends DatacenterBroker impleme
 //			//getVmsCreatedList().remove(VmList.getById(getVmList(), vm.getId()));
 //  	} else {
 		//if (numGen.nextDouble() < Parameters.likelihoodOfFailure) {
-		if (dVm.getId() == 1) {
+		if (dVm.getId() == 1) { // Degrading VM#1
 			if (numGen.nextDouble() < Parameters.likelihoodOfFailure) {
 				dVm.setDegrading(true);
 				task.setScheduledToFail(true);

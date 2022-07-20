@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
+import org.apache.commons.math3.util.Pair;
 import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.distributions.ContinuousDistribution;
@@ -90,17 +91,19 @@ public class Simulation {
 
 	}
 
-	private static void writeEntry(HashMap<Integer, List<Double>> entry) throws IOException {
+	private static void writeEntry(HashMap<Integer, Pair<Integer,List<Double>>> entry) throws IOException {
 		final String fileName = "out.csv";
 		BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
 		writer.write(",High,Low");
 		writer.newLine();
-		for (Map.Entry<Integer, List<Double>> entry_ :
+		for (Map.Entry<Integer, Pair<Integer,List<Double>>> entry_ :
 				entry.entrySet()) {
 
 			// put key and value separated by a colon
 			writer.write(entry_.getKey() + ","
-					+ entry_.getValue().get(0) + "," + entry_.getValue().get(1));
+					+ entry_.getValue().getKey() + ","
+					+ entry_.getValue().getValue().get(0) + ","
+					+ entry_.getValue().getValue().get(1));
 
 			writer.newLine();
 		}
