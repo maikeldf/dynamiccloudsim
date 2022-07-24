@@ -143,7 +143,7 @@ public abstract class AbstractWorkflowScheduler extends DatacenterBroker impleme
 //  	} else {
 		//if (numGen.nextDouble() < Parameters.likelihoodOfFailure) {
 		if (dVm.getId() == 1) { // Degrading VM#1
-			if (numGen.nextDouble() < Parameters.likelihoodOfFailure) {
+			if (numGen.nextDouble() < SimulationParameters.likelihoodOfFailure) {
 				dVm.setDegrading(true);
 				task.setScheduledToFail(true);
 				task.setCloudletLength((long) (task.getCloudletLength() * Parameters.runtimeFactorInCaseOfFailure));

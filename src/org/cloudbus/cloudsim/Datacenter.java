@@ -8,12 +8,7 @@
 package org.cloudbus.cloudsim;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import de.huberlin.wbi.dcs.DynamicHost;
 import de.huberlin.wbi.dcs.DynamicVm;
@@ -48,6 +43,8 @@ public class Datacenter extends SimEntity {
 	/** The scheduling interval. */
 	private double schedulingInterval;
 
+	private Map<Integer, List<Double>> mapCpu;
+
 	/**
 	 * Allocates a new PowerDatacenter object.
 	 * 
@@ -80,6 +77,7 @@ public class Datacenter extends SimEntity {
 		setVmAllocationPolicy(vmAllocationPolicy);
 		setLastProcessTime(0.0);
 		setDebts(new HashMap<Integer, Double>());
+		setMapCpu(new HashMap<Integer, List<Double>>());
 		setStorageList(storageList);
 		setVmList(new ArrayList<Vm>());
 		setSchedulingInterval(schedulingInterval);
@@ -902,10 +900,29 @@ public class Datacenter extends SimEntity {
 				// inform VMs to update processing
 				double time = host.updateVmsProcessing(CloudSim.clock());
 
-				if (host.getEntry().size() > 0){
-					CloudSim.addEntry(host.getVmList().get(0).getId(), host.getEntry());
-					host.getEntry().clear();
+				if(host.getVmList().size()>0) {
+					List<Double> lCpu = new ArrayList<>();
+					Integer id = host.getVmList().get(0).getId();
+					if (mapCpu.containsKey(id)){
+						lCpu = mapCpu.get(id);
+						if (lCpu.size() == 4) {
+							Collections.sort(lCpu);
+							CloudSim.addEntry(id, lCpu);
+							lCpu.clear();
+							mapCpu.remove(id);
+						} else {
+							lCpu.add(((DynamicVm)host.getVmList().get(0)).getCpu());
+						}
+					} else {
+						lCpu.add(((DynamicVm)host.getVmList().get(0)).getCpu());
+						mapCpu.put(id, lCpu);
+					}
 				}
+
+//				if (host.getEntry().size() > 0){
+//					CloudSim.addEntry(host.getVmList().get(0).getId(), host.getEntry());
+//					host.getEntry().clear();
+//				}
 
 				// terminating degraded Vms
 				terminatingDegradedVms(host);
@@ -1220,6 +1237,10 @@ public class Datacenter extends SimEntity {
 		return debts;
 	}
 
+	protected Map<Integer, List<Double>> getMapCpu() {
+		return mapCpu;
+	}
+
 	/**
 	 * Sets the debts.
 	 * 
@@ -1227,6 +1248,10 @@ public class Datacenter extends SimEntity {
 	 */
 	protected void setDebts(Map<Integer, Double> debts) {
 		this.debts = debts;
+	}
+
+	protected void setMapCpu(Map<Integer, List<Double>> mapCpu) {
+		this.mapCpu = mapCpu;
 	}
 
 	/**

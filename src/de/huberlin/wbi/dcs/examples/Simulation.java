@@ -46,7 +46,7 @@ public class Simulation {
 //		SimulationParameters.ioNoiseDistribution = SimulationParameters.Distribution.EXPONENTIAL;
 //		SimulationParameters.bwNoiseDistribution = SimulationParameters.Distribution.EXPONENTIAL;
 		SimulationParameters.outputDatacenterEvents = true;
-		SimulationParameters.numberOfRuns = 100;
+		SimulationParameters.numberOfRuns = 10; 				//originally 100
 		SimulationParameters.ram =  (int) (0.5 * 1024);
 		//Parameters.numberOfPes = 3;
 		//Parameters.runtimeFactorInCaseOfFailure = 50d;

@@ -190,7 +190,7 @@ public class SimulationParameters extends Parameters{
 
 	// the probability for a task to end in failure instead of success once it's
 	// execution time has passed
-	public static double likelihoodOfFailure = 0.002;
+	public static double likelihoodOfFailure = 0.02; 		//Originally 0.002
 	public static double runtimeFactorInCaseOfFailure = 20d;
 
 	// the coefficient of variation for information that is typically not

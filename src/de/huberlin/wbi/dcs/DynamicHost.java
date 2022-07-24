@@ -27,10 +27,6 @@ public class DynamicHost extends Host {
 
 	private List<Double> listCpu;
 
-	private List<Double> entry;
-
-	//private static int count = 0;
-
 	public DynamicHost(int id, int ram, long bandwidth, long io, long storage, double numberOfCusPerPe, int numberOfPes, double mipsPerPe) {
 		super(id, new RamProvisionerSimple(ram), new BwProvisionerFull(bandwidth), storage, new ArrayList<Pe>(), null);
 		setIo(io);
@@ -45,7 +41,6 @@ public class DynamicHost extends Host {
 		setFailed(false);
 		localFiles = new HashSet<>();
 		listCpu = new ArrayList<>();
-		entry = new ArrayList<>();
 	}
 
 	@Override
@@ -113,45 +108,34 @@ public class DynamicHost extends Host {
 	@Override
 	public double updateVmsProcessing(double currentTime) {
 		double smallerTime = super.updateVmsProcessing(currentTime);
-		listCpu.addAll(fillEntry(1)); // performance degradation Vm Id 1 = 10%
-		listCpu.addAll(fillEntry(0));
 
-		if (listCpu.size() == 4) {
-			Collections.sort(listCpu);
-			//String str = String.format("#"+count+",%.2f,%.2f,%.2f",currentTime,listCpu.get(3),listCpu.get(0));
-			//Log.printLine(str);
-			//count++;
-			entry.add(listCpu.get(3));
-			entry.add(listCpu.get(0));
-			listCpu.clear();
-		}
-//		for (Vm vm : getVmList()) {
-//			if (vm.getId() == 1) {
-//
-//			}
-//
-//		}
-		//Log.printLine("updateVmsProcessing: "+currentTime);
-		return smallerTime;
-	}
+		DynamicVm dVm = null;
+		if (getVmList().size() > 0)
+			dVm = (DynamicVm)getVmList().get(0);
 
-	private List<Double> fillEntry(int id) {
-		DynamicVm dVm = (DynamicVm)(VmList.getById(getVmList(), id));
-		List<Double> l = new ArrayList<>();
+		/*
+		* When it is a non-degrading Vm, the CPU is randomly set by increasing/decreasing
+		* a bit, emulating a normal task process. If the Vm is flagged as degrading,
+		* CPU performance will increase by 10% over time.
+		 */
 		if (dVm != null) {
 			if (dVm.getCpu() < 100) {
 				Log.formatLine("VM: #%d CPU: %.2f Performance degrading: %b", dVm.getId(), dVm.getCpu(), dVm.getDegrading());
 				if (dVm.getDegrading()) {
-					dVm.setCpu(dVm.getCpu() / 0.9); // performance degradation of 10% over time
+					dVm.setCpu(dVm.getCpu() / 0.9);
+				} else {
+					long seed = System.currentTimeMillis();
+					Random numGen = new Random(seed);
+					Double factor = (float) (numGen.nextInt(10)*0.01) + 0.9;
+
+					if (Math.abs(numGen.nextInt()) % 2 == 0) {
+						dVm.setCpu(dVm.getCpu() / factor);
+					} else {
+						dVm.setCpu(dVm.getCpu() * factor);
+					}
 				}
-				l.add(dVm.getCpu());
 			}
 		}
-
-		return l;
-	}
-
-	public List<Double> getEntry() {
-		return entry;
+		return smallerTime;
 	}
 }

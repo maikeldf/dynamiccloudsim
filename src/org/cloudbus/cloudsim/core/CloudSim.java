@@ -71,8 +71,8 @@ public class CloudSim {
 
 	public static void addEntry(Integer vmId, List<Double> l) {
 		List<Double> ld = new ArrayList<>();
+		ld.add(l.get(3));
 		ld.add(l.get(0));
-		ld.add(l.get(1));
 		entry.put(CloudSim.entry.size() + 1, new Pair<>(vmId,ld));
 	}
 
